@@ -46,75 +46,77 @@ connection.connect(function (err) {
                     if (err) { throw err };
                     var choices = res.map(function (item) {
                         return `${item.item_id}  ${item.product_name}  ${item.department_name}  $${item.price}  ${item.stock_quantity}`
-                        console.log(choices);
                     })
-
-                }),
-            }
-
-            function viewInventory() {
-                console.log('  ID  Product  Department  Price');
-                connection.query("select * from products where stock_quantity < 5", function (err, res) {
-                    var choices = res.map(function (item) {
-                        return `${item.item_id}  ${item.product_name}  ${item.department_name}  $${item.price}  ${item.stock_quantity}`
-                    })
-                    if (err) throw err;
                     console.log(choices);
                 }),
 
-            }
 
-            function queryProductName() {
-                var searchProduct = "select product_name from products where item_id=" + orderId;
-                connection.query(searchProduct, function (err, orderProduct) {
-                    if (err) throw err;
-                    console.log('res2 ', orderProduct[0].product_name);
-                    currentProduct = orderProduct[0].product_name;
-                });
-            }
+                    function viewInventory() {
+                        console.log('  ID  Product  Department  Price');
+                        connection.query("select * from products where stock_quantity < 5", function (err, res2) {
+                            if (err) { throw err } else {
+                                var choices2 = res2.map(function (item) {
+                                    return `${item.item_id}  ${item.product_name}  ${item.department_name}  $${item.price}  ${item.stock_quantity}`
+                                })
+                                console.log(choices2);
+                            }
+                        }),
 
-            queryProductName();
 
-            function queryPrice() {
-                var searchPrice = "select price from products where item_id=" + orderId;
-                connection.query(searchPrice, function (err, orderPrice) {
-                    if (err) throw err;
-                    console.log('price ', orderPrice[0].price);
-                    currentPrice = orderPrice[0].product_price;
-                });
-            }
-            queryPrice();
+                            addInventory() {
+                            inquirer.prompt([
+                                {
+                                    type: "input",
+                                    name: "id",
+                                    message: "What product do you want to increase the inventory?"
+                                },
+                                {
+                                    type: "input",
+                                    name: "quantity",
+                                    message: "How many more do you want to add to inventory?"
+                                },
+                            ]).then(function (answer2) { },
+                            ])
+                        }
 
-            function queryStock() {
-                var searchStock = "select stock_quantity from products where item_id=" + orderId;
-                connection.query(searchStock, function (err, currentStock) {
-                    if (err) throw err;
-                    console.log('stock ', currentStock[0].stock_quantity);
-                    currentStock = currentStock[0].stock_quantity;
-                    if (currentStock < orderAmount) {
-                        console.log('Insufficient quantity!')
-                    } else {
-                        newStock = currentStock - orderAmount;
-                        console.log(newStock);
-                        updateStock(newStock)
-                    }
-                });
-                function updateStock(newStock) {
-                    console.log(newStock)
-                    var updateStock = "update products SET stock_quantity =" + newStock + " WHERE item_id=" + orderId;
-                    connection.query(updateStock, function (err, res3) {
-                        if (err) throw err;
-                        console.log(res3);
-                    });
+                    };
+                addProduct() {
+                    addInventory() {
+                        inquirer.prompt([
+                            {
+                                type: "input",
+                                name: "product_name",
+                                message: "What product do you want to add?"
+                            },
+                            {
+                                type: "input",
+                                name: "department_name",
+                                message: "In what department does the product belong?"
+                            },
+                            {
+                                type: "input",
+                                name: "price",
+                                message: "What is the price per unit?"
+                            },
+                            {
+                                type: "input",
+                                name: "stock_quantity",
+                                message: "What is the initial amount of stock?"
+                            },
+                        ]).then(function (answer3) {
+                            var product_name = answer3.product_name;
+                            var department_name = answer3.department_name;
+                            var price = answer3.price;
+                            var stock_quantity = answer3.stock_quantity;
+                            var productInsert = "insert into products (product_name, department_name, price, stock_quantity) values (" + product_name + "," + department_name + "," + price + "," + stock_quantity + "),";
+                            connection.query(productInsert);
+                        ])
+
+                    };
+
+
                 }
             }
-            queryStock();
-
-        });
-
-
-
-
-    })
+        })
     }
 })
